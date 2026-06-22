@@ -5,6 +5,9 @@
  * AIEngine API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { FactCheckEvidenceItem } from './factCheckEvidenceItem';
+import type { FactCheckSource } from './factCheckSource';
+import type { FactCheckTimelineItem } from './factCheckTimelineItem';
 
 export interface FactCheck {
   id: number;
@@ -16,6 +19,18 @@ export interface FactCheck {
   provider: string;
   /** @nullable */
   evidenceSummary?: string | null;
+  /** @nullable */
+  claimType?: string | null;
+  /** @nullable */
+  summary?: string | null;
+  /** @nullable */
+  supportingEvidence?: FactCheckEvidenceItem[] | null;
+  /** @nullable */
+  contradictingEvidence?: FactCheckEvidenceItem[] | null;
+  /** @nullable */
+  sources?: FactCheckSource[] | null;
+  /** @nullable */
+  timeline?: FactCheckTimelineItem[] | null;
   createdAt: Date;
   updatedAt: Date;
 }

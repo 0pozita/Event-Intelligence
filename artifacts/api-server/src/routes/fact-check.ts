@@ -2,7 +2,8 @@ import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { db, claimsTable, factChecksTable } from "@workspace/db";
 import { RunFactCheckBody, GetFactCheckParams } from "@workspace/api-zod";
-import { getFactCheckProvider } from "../lib/fact-check";
+import { runFactCheckPipeline } from "../lib/fact-checker/pipeline";
+import { mapVerdictToClaimStatus } from "../lib/fact-checker/verdict-engine";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -24,16 +25,13 @@ router.post("/fact-check", async (req, res): Promise<void> => {
     return;
   }
 
-  const provider = getFactCheckProvider();
-
   let result;
   try {
-    result = await provider.analyzeClaim(claim.text);
+    result = await runFactCheckPipeline(claim.text);
   } catch (err) {
-    req.log.error({ err }, "Fact check provider failed, falling back to mock");
-    const { MockFactCheckProvider } = await import("../lib/fact-check/mock-provider");
-    const mock = new MockFactCheckProvider();
-    result = await mock.analyzeClaim(claim.text);
+    req.log.error({ err }, "Fact check pipeline failed");
+    res.status(500).json({ error: "Fact check analysis failed. Please try again." });
+    return;
   }
 
   const [factCheck] = await db
@@ -46,18 +44,34 @@ router.post("/fact-check", async (req, res): Promise<void> => {
       reasoning: result.reasoning,
       provider: result.provider,
       evidenceSummary: result.evidenceSummary,
+      claimType: result.claimType,
+      summary: result.summary,
+      supportingEvidence: result.supportingEvidence,
+      contradictingEvidence: result.contradictingEvidence,
+      sources: result.sources,
+      timeline: result.timeline,
     })
     .returning();
 
   await db
     .update(claimsTable)
     .set({
-      status: mapVerdictToStatus(result.verdict),
+      status: mapVerdictToClaimStatus(result.verdict),
       confidence: result.trustScore / 100,
     })
     .where(eq(claimsTable.id, parsed.data.claimId));
 
-  logger.info({ claimId: parsed.data.claimId, verdict: result.verdict, provider: result.provider }, "Fact check completed");
+  logger.info(
+    {
+      claimId: parsed.data.claimId,
+      verdict: result.verdict,
+      claimType: result.claimType,
+      trustScore: result.trustScore,
+      provider: result.provider,
+      sourcesCount: result.sources.length,
+    },
+    "Fact check pipeline completed",
+  );
 
   res.status(201).json(factCheck);
 });
@@ -81,14 +95,5 @@ router.get("/fact-check/:id", async (req, res): Promise<void> => {
 
   res.json(factCheck);
 });
-
-function mapVerdictToStatus(verdict: string): string {
-  switch (verdict) {
-    case "True": return "verified";
-    case "False": return "false";
-    case "Partially True": return "partially_verified";
-    default: return "unverified";
-  }
-}
 
 export default router;

@@ -1,0 +1,1 @@
+- [Fact Checker Pipeline](fact-checker-pipeline.md) — evidence-based pipeline in fact-checker/ (not fact-check/); source validation, formula trust score, 6 verdict types

@@ -686,6 +686,41 @@ components:
         url:
           type: string
 
+    FactCheckSource:
+      type: object
+      required: [title, url, publisher, snippet, supportsClaim, credibilityScore]
+      properties:
+        title:
+          type: string
+        url:
+          type: string
+        publisher:
+          type: string
+        snippet:
+          type: string
+        supportsClaim:
+          type: boolean
+        credibilityScore:
+          type: integer
+
+    FactCheckEvidenceItem:
+      type: object
+      required: [text, source]
+      properties:
+        text:
+          type: string
+        source:
+          $ref: "#/components/schemas/FactCheckSource"
+
+    FactCheckTimelineItem:
+      type: object
+      required: [date, event]
+      properties:
+        date:
+          type: string
+        event:
+          type: string
+
     FactCheck:
       type: object
       required: [id, claimId, verdict, trustScore, trustRating, reasoning, provider, createdAt, updatedAt]
@@ -706,6 +741,26 @@ components:
           type: string
         evidenceSummary:
           type: ["string", "null"]
+        claimType:
+          type: ["string", "null"]
+        summary:
+          type: ["string", "null"]
+        supportingEvidence:
+          type: ["array", "null"]
+          items:
+            $ref: "#/components/schemas/FactCheckEvidenceItem"
+        contradictingEvidence:
+          type: ["array", "null"]
+          items:
+            $ref: "#/components/schemas/FactCheckEvidenceItem"
+        sources:
+          type: ["array", "null"]
+          items:
+            $ref: "#/components/schemas/FactCheckSource"
+        timeline:
+          type: ["array", "null"]
+          items:
+            $ref: "#/components/schemas/FactCheckTimelineItem"
         createdAt:
           type: string
           format: date-time

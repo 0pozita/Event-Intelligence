@@ -353,6 +353,42 @@ export const GetFactCheckResponse = zod.object({
   "reasoning": zod.string(),
   "provider": zod.string(),
   "evidenceSummary": zod.string().nullish(),
+  "claimType": zod.string().nullish(),
+  "summary": zod.string().nullish(),
+  "supportingEvidence": zod.array(zod.object({
+  "text": zod.string(),
+  "source": zod.object({
+  "title": zod.string(),
+  "url": zod.string(),
+  "publisher": zod.string(),
+  "snippet": zod.string(),
+  "supportsClaim": zod.boolean(),
+  "credibilityScore": zod.number()
+})
+})).nullish(),
+  "contradictingEvidence": zod.array(zod.object({
+  "text": zod.string(),
+  "source": zod.object({
+  "title": zod.string(),
+  "url": zod.string(),
+  "publisher": zod.string(),
+  "snippet": zod.string(),
+  "supportsClaim": zod.boolean(),
+  "credibilityScore": zod.number()
+})
+})).nullish(),
+  "sources": zod.array(zod.object({
+  "title": zod.string(),
+  "url": zod.string(),
+  "publisher": zod.string(),
+  "snippet": zod.string(),
+  "supportsClaim": zod.boolean(),
+  "credibilityScore": zod.number()
+})).nullish(),
+  "timeline": zod.array(zod.object({
+  "date": zod.string(),
+  "event": zod.string()
+})).nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })

@@ -138,6 +138,25 @@ export interface EvidenceInput {
   url?: string;
 }
 
+export interface FactCheckSource {
+  title: string;
+  url: string;
+  publisher: string;
+  snippet: string;
+  supportsClaim: boolean;
+  credibilityScore: number;
+}
+
+export interface FactCheckEvidenceItem {
+  text: string;
+  source: FactCheckSource;
+}
+
+export interface FactCheckTimelineItem {
+  date: string;
+  event: string;
+}
+
 export interface FactCheck {
   id: number;
   claimId: number;
@@ -148,6 +167,18 @@ export interface FactCheck {
   provider: string;
   /** @nullable */
   evidenceSummary?: string | null;
+  /** @nullable */
+  claimType?: string | null;
+  /** @nullable */
+  summary?: string | null;
+  /** @nullable */
+  supportingEvidence?: FactCheckEvidenceItem[] | null;
+  /** @nullable */
+  contradictingEvidence?: FactCheckEvidenceItem[] | null;
+  /** @nullable */
+  sources?: FactCheckSource[] | null;
+  /** @nullable */
+  timeline?: FactCheckTimelineItem[] | null;
   createdAt: string;
   updatedAt: string;
 }
