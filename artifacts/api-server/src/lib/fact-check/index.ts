@@ -1,7 +1,7 @@
 import { type FactCheckProvider } from "./types";
 import { MockFactCheckProvider } from "./mock-provider";
 import { OpenAIFactCheckProvider } from "./openai-provider";
-import { GeminiFactCheckProvider } from "./gemini-provider";
+import { GroqFactCheckProvider } from "./groq-provider";
 
 export function getFactCheckProvider(): FactCheckProvider {
   const openaiKey = process.env.OPENAI_API_KEY;
@@ -9,9 +9,9 @@ export function getFactCheckProvider(): FactCheckProvider {
     return new OpenAIFactCheckProvider(openaiKey);
   }
 
-  const geminiKey = process.env.GEMINI_API_KEY;
-  if (geminiKey) {
-    return new GeminiFactCheckProvider(geminiKey);
+  const groqKey = process.env.GROQ_API_KEY;
+  if (groqKey) {
+    return new GroqFactCheckProvider(groqKey);
   }
 
   return new MockFactCheckProvider();
