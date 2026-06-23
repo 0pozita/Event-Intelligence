@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, ilike, or, desc } from "drizzle-orm";
+
 import { db } from "@workspace/db";
 import {
   eventsTable,
@@ -24,14 +25,14 @@ const router: IRouter = Router();
 
 
 router.get("/events", async (req, res): Promise<void> => {
+
   const params = ListEventsQueryParams.safeParse(req.query);
 
   if (!params.success) {
-    res.status(400).json({
-      error: params.error.message,
-    });
+    res.status(400).json({ error: params.error.message });
     return;
   }
+
 
   const {
     search,
@@ -88,18 +89,16 @@ router.get("/events/trending", async (req, res): Promise<void> => {
     res.status(400).json({
       error: params.error.message,
     });
+
     return;
   }
-
-
-  const limit = params.data.limit ?? 10;
 
 
   const events = await db
     .select()
     .from(eventsTable)
     .orderBy(desc(eventsTable.updatedAt))
-    .limit(limit);
+    .limit(params.data.limit ?? 10);
 
 
   res.json({
@@ -158,28 +157,26 @@ router.get("/events/:id", async (req, res): Promise<void> => {
     );
 
 
-  const allEvidence =
-    claims.length > 0
-      ? await db
-          .select()
-          .from(evidenceTable)
-          .where(
-            eq(
-              evidenceTable.claimId,
-              claims[0].id
+  const evidence = claims.length
+    ? await db
+        .select()
+        .from(evidenceTable)
+        .where(
+          or(
+            ...claims.map((claim) =>
+              eq(evidenceTable.claimId, claim.id)
             )
           )
-      : [];
-
+        )
+    : [];
 
 
   const crossSourceAgreement =
     sources.length > 1
       ? Math.min(1, sources.length / 5)
-      : sources.length > 0
+      : sources.length === 1
       ? 0.8
       : 0.5;
-
 
 
   const {
@@ -187,10 +184,9 @@ router.get("/events/:id", async (req, res): Promise<void> => {
     trustRating,
   } = calculateTrustScore(
     sources,
-    allEvidence,
+    evidence,
     crossSourceAgreement
   );
-
 
 
   res.json({
@@ -222,10 +218,7 @@ router.post("/events", async (req, res): Promise<void> => {
   const [event] = await db
     .insert(eventsTable)
     .values({
-      title: parsed.data.title,
-      description: parsed.data.description,
-      summary: parsed.data.summary,
-      location: parsed.data.location,
+      ...parsed.data,
       category: parsed.data.category ?? "general",
     })
     .returning();
@@ -261,7 +254,6 @@ router.put("/events/:id", async (req, res): Promise<void> => {
 
     return;
   }
-
 
 
   const [event] = await db
@@ -303,14 +295,12 @@ router.delete("/events/:id", async (req, res): Promise<void> => {
   }
 
 
-
   const [event] = await db
     .delete(eventsTable)
     .where(
       eq(eventsTable.id, params.data.id)
     )
     .returning();
-
 
 
   if (!event) {
@@ -325,7 +315,6 @@ router.delete("/events/:id", async (req, res): Promise<void> => {
   res.sendStatus(204);
 
 });
-
 
 
 export default router;
