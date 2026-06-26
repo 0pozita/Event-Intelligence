@@ -1,6 +1,6 @@
 import express, { type Express, type Request, type Response } from "express";
 import cors from "cors";
-import pinoHttp from "pino-http";
+import * as pinoHttp from "pino-http";
 
 import router from "./routes";
 import { logger } from "./lib/logger";
@@ -8,12 +8,12 @@ import { logger } from "./lib/logger";
 const app: Express = express();
 
 app.use(
-  pinoHttp({
+  pinoHttp.default({
     logger,
     serializers: {
       req(req: Request) {
         return {
-          id: req.id,
+          id: (req as any).id,
           method: req.method,
           url: req.url?.split("?")[0],
         };
@@ -29,11 +29,11 @@ app.use(
 );
 
 app.use(cors());
-
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
+
+export default app;app.use("/api", router);
 
 export default app;
