@@ -1,6 +1,6 @@
 {
-  "installCommand": "pnpm install",
   "buildCommand": "pnpm --filter @workspace/aiengine build",
+  "installCommand": "pnpm install",
   "outputDirectory": "artifacts/aiengine/dist",
-  "framework": "vite"
+  "framework": null
 }
