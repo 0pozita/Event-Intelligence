@@ -1,6 +1,16 @@
 {
+  "version": 2,
   "installCommand": "pnpm install",
   "buildCommand": "pnpm run build",
-  "outputDirectory": "dist",
-  "framework": "vite"
+  "functions": {
+    "dist/index.mjs": {
+      "runtime": "nodejs22.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/dist/index.mjs"
+    }
+  ]
 }
