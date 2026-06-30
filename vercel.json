@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "cd artifacts/aiengine && pnpm run build",
-  "outputDirectory": "artifacts/aiengine/dist",
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "dist",
   "framework": "vite"
 }
