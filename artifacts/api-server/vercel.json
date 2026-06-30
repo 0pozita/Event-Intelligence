@@ -2,15 +2,10 @@
   "version": 2,
   "installCommand": "pnpm install",
   "buildCommand": "pnpm run build",
-  "functions": {
-    "artifacts/api-server/dist/index.mjs": {
-      "runtime": "nodejs22.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/artifacts/api-server/dist/index.mjs"
+      "destination": "/api/index.mjs"
     }
   ]
 }
